@@ -1,5 +1,5 @@
 // styles/auth.styles.ts
-// import { COLORS } from "@/constants/theme";
+import { COLORS } from "@/constants/theme";
 import { Dimensions, StyleSheet } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -9,16 +9,19 @@ export const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		// backgroundColor: "red",
-		// backgroundColor: COLORS.background,
+		backgroundColor: COLORS.background,
 	},
+	//
+	//
+	//
+	//
 	brandSection: {
 		alignItems: "center",
 		marginTop: height * 0.12,
 	},
 	logoContainer: {
-		width: 60,
-		height: 60,
+		width: 100,
+		height: 100,
 		borderRadius: 18,
 		backgroundColor: "rgba(74, 222, 128, 0.15)",
 		justifyContent: "center",
@@ -26,19 +29,23 @@ export const styles = StyleSheet.create({
 		marginBottom: 20,
 	},
 	appName: {
-		fontSize: 42,
+		fontSize: 50,
 		fontWeight: "700",
 		fontFamily: "JetBrainsMono-Medium",
-		// color: COLORS.primary,
+		color: COLORS.primary,
 		letterSpacing: 0.5,
 		marginBottom: 8,
 	},
 	tagline: {
 		fontSize: 16,
-		// color: COLORS.grey,
+		color: COLORS.grey,
 		letterSpacing: 1,
 		textTransform: "lowercase",
 	},
+	//
+	//
+	//
+	//
 	illustrationContainer: {
 		flex: 1,
 		justifyContent: "center",
@@ -50,6 +57,10 @@ export const styles = StyleSheet.create({
 		height: width * 0.75,
 		maxHeight: 280,
 	},
+	//
+	//
+	//
+	//
 	loginSection: {
 		width: "100%",
 		paddingHorizontal: 24,
@@ -60,7 +71,7 @@ export const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		// backgroundColor: COLORS.white,
+		backgroundColor: COLORS.white,
 		paddingVertical: 16,
 		paddingHorizontal: 24,
 		borderRadius: 14,
@@ -86,12 +97,11 @@ export const styles = StyleSheet.create({
 	googleButtonText: {
 		fontSize: 16,
 		fontWeight: "600",
-		// color: COLORS.surface,
+		color: COLORS.surface,
 	},
 	termsText: {
-		textAlign: "center",
 		fontSize: 12,
-		// color: COLORS.grey,
+		color: COLORS.grey,
 		maxWidth: 280,
 	},
 });

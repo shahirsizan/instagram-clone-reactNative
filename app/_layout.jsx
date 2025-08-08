@@ -1,18 +1,10 @@
-import { SplashScreen, Stack } from "expo-router";
+import { tokenCache } from "@/cache.js";
+import InitialLayout from "@/components/InitialLayout";
+import { ClerkProvider } from "@clerk/clerk-expo";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-SplashScreen.preventAutoHideAsync();
-
 export default function RootLayout() {
-	// const [fontsLoaded] = useFonts({
-	// 	"JetBrainsMono-Medium": require("../assets/fonts/JetBrainsMono-Medium.ttf"),
-	// });
-
-	// const onLayoutRootView = useCallback(async () => {
-	// 	if (fontsLoaded) await SplashScreen.hideAsync();
-	// }, [fontsLoaded]);
-
 	// update the native navigation bar on Android.
 	// useEffect(() => {
 	// 	if (Platform.OS === "android") {
@@ -20,15 +12,21 @@ export default function RootLayout() {
 	// 		NavigationBar.setButtonStyleAsync("light");
 	// 	}
 	// }, []);
+	console.log("rootLayout theke bolchi");
+
+	const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+	if (!publishableKey) {
+		throw new Error("Missing publishable key");
+	}
 
 	return (
-		<>
+		<ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
 			<StatusBar style="light" />
 			<SafeAreaProvider>
 				<SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
-					<Stack screenOptions={{ headerShown: false }} />
+					<InitialLayout />
 				</SafeAreaView>
 			</SafeAreaProvider>
-		</>
+		</ClerkProvider>
 	);
 }
