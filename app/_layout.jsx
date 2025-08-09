@@ -1,18 +1,15 @@
 import { tokenCache } from "@/cache.js";
 import InitialLayout from "@/components/InitialLayout";
-import { ClerkProvider } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
+import { ConvexReactClient } from "convex/react";
+import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
-	// update the native navigation bar on Android.
-	// useEffect(() => {
-	// 	if (Platform.OS === "android") {
-	// 		NavigationBar.setBackgroundColorAsync("#000000");
-	// 		NavigationBar.setButtonStyleAsync("light");
-	// 	}
-	// }, []);
-	console.log("rootLayout theke bolchi");
+	const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL, {
+		unsavedChangesWarning: false,
+	});
 
 	const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 	if (!publishableKey) {
@@ -21,12 +18,14 @@ export default function RootLayout() {
 
 	return (
 		<ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-			<StatusBar style="light" />
-			<SafeAreaProvider>
-				<SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
-					<InitialLayout />
-				</SafeAreaView>
-			</SafeAreaProvider>
+			<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+				<StatusBar style="light" />
+				<SafeAreaProvider>
+					<SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
+						<InitialLayout />
+					</SafeAreaView>
+				</SafeAreaProvider>
+			</ConvexProviderWithClerk>
 		</ClerkProvider>
 	);
 }
