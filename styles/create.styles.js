@@ -9,6 +9,9 @@ export const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: COLORS.background,
 	},
+	//
+	//
+	//
 	contentContainer: {
 		flex: 1,
 	},
@@ -29,6 +32,9 @@ export const styles = StyleSheet.create({
 		fontWeight: "600",
 		color: COLORS.white,
 	},
+	//
+	//
+	//
 	contentDisabled: {
 		opacity: 0.7,
 	},
