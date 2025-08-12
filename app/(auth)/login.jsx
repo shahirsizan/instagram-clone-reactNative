@@ -17,9 +17,13 @@ export default function login() {
 				strategy: "oauth_google",
 			});
 
-			if (setActive && createdSessionId) {
-				setActive({ session: createdSessionId });
-				router.replace("/(tabs)");
+			if (createdSessionId) {
+				await setActive({
+					session: createdSessionId,
+				});
+
+				// router.replace("/(tabs)");
+				// lagbe na.
 			}
 		} catch (error) {
 			console.error("OAuth error: ", error);

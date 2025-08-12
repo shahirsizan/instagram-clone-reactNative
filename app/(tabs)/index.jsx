@@ -1,16 +1,19 @@
-import { Link } from "expo-router";
-import { View } from "react-native";
+import { useAuth } from "@clerk/clerk-expo";
+import { Text, TouchableOpacity, View } from "react-native";
 import { styles } from "../../styles/auth.styles";
 
 export default function Index() {
-	// const tasks = useQuery(api.tasks.get);
-	// console.log("tasks: ", tasks);
+	const { signOut } = useAuth();
 
 	return (
 		<View style={[styles.container]}>
-			<Link href={"/notifications"} style={{ color: "white" }}>
-				visit notification screennn
-			</Link>
+			<TouchableOpacity
+				onPress={() => {
+					signOut();
+				}}
+			>
+				<Text style={{ color: "white" }}>Signout</Text>
+			</TouchableOpacity>
 		</View>
 	);
 }
