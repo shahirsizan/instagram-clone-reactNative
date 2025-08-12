@@ -13,6 +13,7 @@
 		"expo-env.d.ts",
 		"app/(tabs)/index.jsx",
 		"app/_layout.jsx",
-		"convex/tasks.js"
+		"convex/tasks.js",
+		"styles/create.styles.js"
 	]
 }

@@ -13,6 +13,8 @@ http.route({
 	path: "/clerk-webhook",
 	method: "POST",
 	handler: httpAction(async (ctx, request) => {
+		// console.log("http req: ", request);
+
 		const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
 		if (!webhookSecret) {
 			throw new Error(
@@ -20,6 +22,7 @@ http.route({
 			);
 		}
 
+		// Clerk uses Svix to send webhooks
 		// check headers
 		const svix_id = request.headers.get("svix-id");
 		const svix_signature = request.headers.get("svix-signature");
@@ -32,7 +35,6 @@ http.route({
 		}
 
 		const payload = await request.json();
-		const body = JSON.stringify(payload);
 
 		const wh = new Webhook(webhookSecret);
 		let evt;
