@@ -7,6 +7,7 @@ import { mutation } from "./_generated/server";
 //     3. Save the storage ID into your data model via another mutation.
 
 export const generateUploadUrl = mutation({
+	args: {},
 	handler: async (ctx) => {
 		return await ctx.storage.generateUploadUrl();
 	},
@@ -23,6 +24,7 @@ export const createPost = mutation({
 			throw new Error("Unauthorized user!");
 		}
 
+		// fetch current user info from convex db
 		const currentUser = await ctx.db
 			.query("users")
 			.withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
@@ -32,8 +34,6 @@ export const createPost = mutation({
 			throw new Error("User not found!");
 		}
 
-		// remember, this entire function will execute after the image is uploaded into convex storage,
-		// by that time, we'll have the `storageId`
 		const imageUrl = await ctx.storage.getUrl(args.storageId);
 
 		if (!imageUrl) {
