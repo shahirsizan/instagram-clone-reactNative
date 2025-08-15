@@ -20,7 +20,7 @@ export const createPost = mutation({
 		storageId: v.id("_storage"),
 	},
 	handler: async (ctx, args) => {
-		const currentUser = getAuthenticatedUser(ctx);
+		const currentUser = await getAuthenticatedUser(ctx);
 
 		const imageUrl = await ctx.storage.getUrl(args.storageId);
 
@@ -61,7 +61,7 @@ export const getFeedPosts = query({
 		const postsWithInfo = await Promise.all(
 			posts.map(async (post) => {
 				// fetch author info
-				const postAuthor = await ctx.db.get("posts", post.userId);
+				const postAuthor = await ctx.db.get(post.userId);
 
 				// fetch if liked by me
 				const isLiked = await ctx.db
