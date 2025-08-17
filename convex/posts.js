@@ -49,6 +49,7 @@ export const getFeedPosts = query({
 	args: {},
 	handler: async (ctx, args) => {
 		const currentUser = await getAuthenticatedUser(ctx);
+		// console.log("currentUser: ", currentUser);
 
 		// get all posts
 		const posts = await ctx.db.query("posts").order("desc").collect();
@@ -102,3 +103,59 @@ export const getFeedPosts = query({
 		return postsWithInfo;
 	},
 });
+
+export const toggleLike = mutation({
+	args: { postId: v.id("posts") },
+	handler: async (ctx, args) => {
+		const currentUser = await getAuthenticatedUser(ctx);
+
+		// In Convex, you have to fetch the document before you perform update operation
+		// that modifies a field based on its current value.
+		// The below line `await ctx.db.patch(args.postId, { likes: post.likes - 1 })`
+		// relies on the current value of `post.likes`, which is only available after fetching the `post` document.
+		const post = await ctx.db.get(args.postId);
+
+		// check if like already exists or not
+		const alreadeLiked = await ctx.db
+			.query("likes")
+			.withIndex("by_user_and_post", (q) => {
+				return q
+					.eq("postId", args.postId)
+					.eq("userId", currentUser._id);
+			})
+			.first();
+
+		if (alreadeLiked) {
+			// remove like
+			await ctx.db.delete(alreadeLiked._id);
+			await ctx.db.patch(args.postId, { likes: post.likes - 1 });
+			return "unliked";
+			// unliked
+		} else {
+			// add like
+			// first create new entry in the `likes` table
+			await ctx.db.insert("likes", {
+				userId: currentUser._id,
+				postId: args.postId,
+			});
+			// then update `likes` count of corresponding post in `posts` table
+			await ctx.db.patch(args.postId, { likes: post.likes + 1 });
+
+			// anyone can like a post, even the owner.
+			// But if not owner, send a notification to the owner
+			if (post.userId !== currentUser._id) {
+				await ctx.db.insert("notifications", {
+					senderId: currentUser._id,
+					receiverId: post.userId,
+					type: "like",
+					postId: args.postId,
+				});
+			}
+
+			return "liked";
+			// liked
+		}
+	},
+});
+
+// export const deletePost = mutation({ args: {}, handler: () => {} });

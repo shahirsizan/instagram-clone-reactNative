@@ -59,13 +59,15 @@ export default function Index() {
 			<FlatList
 				data={posts}
 				renderItem={({ item, index, separators }) => {
-					return <Post />;
+					return <Post post={item} />;
 				}}
 				keyExtractor={(item, index) => {
 					return item._id;
 				}}
 				showsVerticalScrollIndicator={true}
-				contentContainerStyle={{ paddingBottom: 60 }}
+				contentContainerStyle={{
+					paddingBottom: 50,
+				}}
 			/>
 			{/* uporer FlatList e  `refreshControl` props use korini. Pore dekhte hobe*/}
 		</View>

@@ -14,6 +14,8 @@
 		"app/(tabs)/index.jsx",
 		"app/_layout.jsx",
 		"convex/tasks.js",
-		"styles/create.styles.js"
+		"styles/create.styles.js",
+		"convex/posts.js",
+		"convex/http.js"
 	]
 }
