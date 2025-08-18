@@ -158,4 +158,71 @@ export const toggleLike = mutation({
 	},
 });
 
-// export const deletePost = mutation({ args: {}, handler: () => {} });
+export const deletePost = mutation({
+	args: { postId: v.id("posts") },
+	handler: async (ctx, args) => {
+		// get current user
+		const currentUser = await getAuthenticatedUser(ctx);
+		// get the document
+		const post = await ctx.db.get(args.postId);
+
+		// verify my ownership, although the `trashbin` icon will not even render
+		// if it's not my post. So, this check is optional
+		if (post.userId !== currentUser._id) {
+			throw new Error("Not authorized to delete this post");
+		}
+
+		// time to delete associated likes, comments, bookmarks, notifications & storage-item(image)
+
+		// first, fetch all the associated likes
+		const likes = await ctx.db
+			.query("likes")
+			.withIndex("by_post", (q) => q.eq("postId", args.postId))
+			.collect();
+		// then delete them
+		for (const like of likes) {
+			await ctx.db.delete(like._id);
+		}
+
+		// second, fetch all the associated comments
+		const comments = await ctx.db
+			.query("comments")
+			.withIndex("by_post", (q) => q.eq("postId", args.postId))
+			.collect();
+		// then delete them
+		for (const comment of comments) {
+			await ctx.db.delete(comment._id);
+		}
+
+		// third, fetch all the associated bookmarks
+		const bookmarks = await ctx.db
+			.query("bookmarks")
+			.withIndex("by_post", (q) => q.eq("postId", args.postId))
+			.collect();
+		// then delete them
+		for (const bookmark of bookmarks) {
+			await ctx.db.delete(bookmark._id);
+		}
+
+		// fourth, fetch all the associated notifications
+		const notifications = await ctx.db
+			.query("notifications")
+			.withIndex("by_post", (q) => q.eq("postId", args.postId))
+			.collect();
+		// then delete them
+		for (const notification of notifications) {
+			await ctx.db.delete(notification._id);
+		}
+
+		// fifth, delete the associated storage-items (theimage)
+		await ctx.storage.delete(post.storageId);
+
+		// sixth, delete the post itself
+		await ctx.db.delete(args.postId);
+
+		// finally, decrement user's post count by 1
+		await ctx.db.patch(currentUser._id, { posts: currentUser.posts - 1 });
+
+		console.log("post deleted");
+	},
+});

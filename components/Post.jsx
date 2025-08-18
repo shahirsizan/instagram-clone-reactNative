@@ -34,7 +34,7 @@ export default Post = ({ post }) => {
 
 	const toggleLike = useMutation(api.posts.toggleLike);
 	const toggleBookmark = useMutation(api.bookmarks.toggleBookmark);
-	// const deletePost = useMutation(api.posts.deletePost);
+	const deletePost = useMutation(api.posts.deletePost);
 
 	const handleLike = async () => {
 		try {
@@ -62,8 +62,7 @@ export default Post = ({ post }) => {
 
 	const handleDelete = async () => {
 		try {
-			// await deletePost({ postId: post._id });
-			console.log("Delete pressed");
+			await deletePost({ postId: post._id });
 		} catch (error) {
 			console.error("Error deleting post:", error);
 		}
