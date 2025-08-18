@@ -16,6 +16,7 @@
 		"convex/tasks.js",
 		"styles/create.styles.js",
 		"convex/posts.js",
-		"convex/http.js"
+		"convex/http.js",
+		"components/CommentsModal.jsx"
 	]
 }

@@ -55,7 +55,7 @@ export default defineSchema({
 		postId: v.optional(v.id("posts")),
 		commentId: v.optional(v.id("comments")),
 		// Above two attributes are `optional` because a `follow` notification won't have any Id
-		// Only a `like or a `comment` Ids of the post being manipulated
+		// Only a `like` or a `comment` will have a `postId`
 	})
 		.index("by_receiver", ["receiverId"])
 		.index("by_post", ["postId"]),

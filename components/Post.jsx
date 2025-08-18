@@ -1,5 +1,4 @@
 import { COLORS } from "../constants/theme";
-// import { api } from "@/convex/_generated/api";
 // import { Id } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery } from "convex/react";
@@ -13,7 +12,7 @@ import {
 	Dimensions,
 	StyleSheet,
 } from "react-native";
-// import CommentsModal from "./CommentsModal";
+import CommentsModal from "./CommentsModal";
 import { formatDistanceToNow } from "date-fns";
 import { useUser } from "@clerk/clerk-expo";
 import { api } from "@/convex/_generated/api";
@@ -24,7 +23,6 @@ const { width } = Dimensions.get("window");
 export default Post = ({ post }) => {
 	const [isLiked, setIsLiked] = useState(post.isLiked);
 	const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
-
 	const [showComments, setShowComments] = useState(false);
 
 	// current logged-in-user info is coming from clerk.
@@ -99,8 +97,7 @@ export default Post = ({ post }) => {
 				</Link>
 
 				{/* OPTION DOTS */}
-				{/* if my post, render `delete` button 
-				Else render `three-dots` button */}
+				{/* if my post, render `trashBin`, else `three-dots` */}
 				{post.author._id === currentUser?._id ? (
 					<TouchableOpacity
 						onPress={() => {
@@ -132,11 +129,10 @@ export default Post = ({ post }) => {
 				cachePolicy={"memory-disk"}
 			/>
 
-			{/* POST LIKE-BOOKMARKS */}
+			{/* GIVE LIKE-COMMENT-BOOKMARK */}
 			<View style={styles.postActions}>
-				{/* LIKE-COMMENT */}
 				<View style={styles.postActionsLeft}>
-					{/* LIKE */}
+					{/* GIVE LIKE */}
 					<TouchableOpacity
 						onPress={() => {
 							handleLike();
@@ -149,8 +145,12 @@ export default Post = ({ post }) => {
 						/>
 					</TouchableOpacity>
 
-					{/* COMMENT */}
-					<TouchableOpacity>
+					{/* OPEN COMMENT MODAL */}
+					<TouchableOpacity
+						onPress={() => {
+							setShowComments(true);
+						}}
+					>
 						<Ionicons
 							name="chatbubble-outline"
 							size={22}
@@ -159,7 +159,7 @@ export default Post = ({ post }) => {
 					</TouchableOpacity>
 				</View>
 
-				{/* BOOKMARK */}
+				{/* GIVE BOOKMARK */}
 				<TouchableOpacity
 					onPress={() => {
 						handleBookmark();
@@ -173,16 +173,16 @@ export default Post = ({ post }) => {
 				</TouchableOpacity>
 			</View>
 
-			{/* POST INFO */}
+			{/* SEE POST INFO */}
 			<View style={styles.postInfo}>
-				{/* NUMBER OF LIKES */}
+				{/* SEE NUMBER OF LIKES */}
 				<Text style={styles.likesText}>
 					{post.likes > 0
 						? `${post.likes.toLocaleString()} likes`
 						: "Be the first to like"}
 				</Text>
 
-				{/* OWNER-NAME & POST-CAPTION */}
+				{/* SEE OWNER-NAME & POST-CAPTION */}
 				<View style={styles.captionContainer}>
 					<Text style={styles.captionUsername}>
 						{post.author.username}
@@ -193,7 +193,7 @@ export default Post = ({ post }) => {
 					)}
 				</View>
 
-				{/* NUMBER OF COMMENTS */}
+				{/* SEE NUMBER OF COMMENTS */}
 				{post.comments > 0 && (
 					<TouchableOpacity onPress={() => setShowComments(true)}>
 						<Text style={styles.commentsText}>
@@ -202,7 +202,7 @@ export default Post = ({ post }) => {
 					</TouchableOpacity>
 				)}
 
-				{/* TIME AGO (eta upore circular profile pic er pashe dewa gele valo hoto) */}
+				{/* SEE TIME AGO (eta upore circular profile pic er pashe dewa gele valo hoto) */}
 				<Text style={styles.timeAgo}>
 					{formatDistanceToNow(post._creationTime, {
 						includeSeconds: true,
@@ -212,6 +212,11 @@ export default Post = ({ post }) => {
 			</View>
 
 			{/* COMMENT MODAL */}
+			<CommentsModal
+				postId={post._id}
+				showComments={showComments}
+				setShowComments={setShowComments}
+			/>
 		</View>
 	);
 };
