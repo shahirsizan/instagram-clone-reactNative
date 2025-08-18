@@ -33,7 +33,7 @@ export default Post = ({ post }) => {
 	});
 
 	const toggleLike = useMutation(api.posts.toggleLike);
-	// const toggleBookmark = useMutation(api.bookmarks.toggleBookmark);
+	const toggleBookmark = useMutation(api.bookmarks.toggleBookmark);
 	// const deletePost = useMutation(api.posts.deletePost);
 
 	const handleLike = async () => {
@@ -52,10 +52,12 @@ export default Post = ({ post }) => {
 	};
 
 	const handleBookmark = async () => {
-		console.log("Bookmark pressed");
-
-		// const newIsBookmarked = await toggleBookmark({ postId: post._id });
-		// setIsBookmarked(newIsBookmarked);
+		const result = await toggleBookmark({ postId: post._id });
+		if (result === "bookmarked") {
+			setIsBookmarked(true);
+		} else if (result === "bookmark removed") {
+			setIsBookmarked(false);
+		}
 	};
 
 	const handleDelete = async () => {
@@ -202,7 +204,7 @@ export default Post = ({ post }) => {
 					</TouchableOpacity>
 				)}
 
-				{/* SEE TIME AGO (eta upore circular profile pic er pashe dewa gele valo hoto) */}
+				{/* SEE TIME AGO */}
 				<Text style={styles.timeAgo}>
 					{formatDistanceToNow(post._creationTime, {
 						includeSeconds: true,
