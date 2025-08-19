@@ -18,6 +18,7 @@
 		"convex/posts.js",
 		"convex/http.js",
 		"components/CommentsModal.jsx",
-		"app/(tabs)/bookmarks.jsx"
+		"app/(tabs)/bookmarks.jsx",
+		"app/(tabs)/notifications.jsx"
 	]
 }
