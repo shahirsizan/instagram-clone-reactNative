@@ -226,3 +226,30 @@ export const deletePost = mutation({
 		console.log("post deleted");
 	},
 });
+
+export const getPostsByUser = query({
+	args: {
+		userId: v.optional(v.id("users")),
+	},
+	handler: async (ctx, args) => {
+		// If `userId` passed in args, means I'm looking for another users profile.
+		// If no `userId` in args, means I'm in my own profile
+		const user = args.userId
+			? await ctx.db.get(args.userId)
+			: await getAuthenticatedUser(ctx);
+
+		if (!user) {
+			throw new Error("User not found");
+		}
+
+		// fetch all the posts of this user
+		const posts = await ctx.db
+			.query("posts")
+			.withIndex("by_user", (q) =>
+				q.eq("userId", args.userId || user._id)
+			)
+			.collect();
+
+		return posts;
+	},
+});
