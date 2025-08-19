@@ -17,6 +17,7 @@
 		"styles/create.styles.js",
 		"convex/posts.js",
 		"convex/http.js",
-		"components/CommentsModal.jsx"
+		"components/CommentsModal.jsx",
+		"app/(tabs)/bookmarks.jsx"
 	]
 }
