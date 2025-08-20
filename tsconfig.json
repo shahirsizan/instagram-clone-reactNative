@@ -20,6 +20,7 @@
 		"components/CommentsModal.jsx",
 		"app/(tabs)/bookmarks.jsx",
 		"app/(tabs)/notifications.jsx",
-		"app/(tabs)/profile.jsx"
+		"app/(tabs)/profile.jsx",
+		"app/user/[id].jsx"
 	]
 }

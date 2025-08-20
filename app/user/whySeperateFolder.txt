@@ -1,0 +1,2 @@
+The users profile tab will be rendered outside of the main Tabs navigation system.
+That's why we are putting the related components outside in a seperate folder.

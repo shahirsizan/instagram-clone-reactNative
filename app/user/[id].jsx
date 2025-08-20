@@ -1,55 +1,56 @@
+import Loader from "../../components/Loader";
 import { COLORS } from "@/constants/theme";
-import { Dimensions, Pressable, StyleSheet } from "react-native";
-import Loader from "@/components/Loader";
 import { api } from "@/convex/_generated/api";
-import { useAuth } from "@clerk/clerk-expo";
+// import { Id } from "@/convex/_generated/dataModel";
+// import { styles } from "@/styles/profile.styles";
+import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery } from "convex/react";
+import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
 	View,
 	Text,
 	TouchableOpacity,
 	ScrollView,
+	Pressable,
 	FlatList,
+	Dimensions,
+	StyleSheet,
 	Modal,
-	TouchableWithoutFeedback,
-	Keyboard,
-	KeyboardAvoidingView,
-	Platform,
-	TextInput,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 
-const profile = () => {
-	// FROM CLERK
-	const { signOut, userId } = useAuth();
-
-	// API TO GET CURRENT USERS DATA
-	const currentUser = useQuery(api.users.getUserByClerkId, {
-		clerkId: userId,
-	});
-
-	const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+export default function UserProfileScreen() {
+	const { id } = useLocalSearchParams();
+	const router = useRouter();
 	const [selectedPost, setSelectedPost] = useState(false);
 
-	// state to hold updated profile data
-	const [editedProfile, setEditedProfile] = useState({
-		fullname: currentUser?.fullname || "",
-		bio: currentUser?.bio || "",
+	// API TO FETCH HIS/HER PROFILE INFO
+	const profile = useQuery(api.users.getUserProfile, {
+		id: id,
 	});
+	// API TO FETCH WHETHER HE/SHE IS BEING FOLLOWED OR NOT
+	const isFollowing = useQuery(api.users.isFollowing, {
+		followingId: id,
+	});
+	// API TO FETCH HIS/HER ALL POSTS
+	const posts = useQuery(api.posts.getPostsByUser, {
+		userId: id,
+	});
+	// API TO GIVE FOLLOW/UNFOLLOW
+	const toggleFollow = useMutation(api.users.toggleFollow);
 
-	// API TO GET CURRENT USERS ALL POSTS
-	const posts = useQuery(api.posts.getPostsByUser, {});
-	// API TO UPDATE PROFILE
-	const updateProfile = useMutation(api.users.updateProfile);
-
-	const handleSaveProfile = async () => {
-		await updateProfile(editedProfile);
-		setIsEditModalVisible(false);
+	const handleBack = () => {
+		if (router.canGoBack()) router.back();
+		else router.replace("/(tabs)");
 	};
 
-	if ((currentUser === posts) === undefined) {
+	// IF SOMETHING IS UNDEFINED, SHOW <Loader/> SCREEN
+	if (
+		profile === undefined ||
+		posts === undefined ||
+		isFollowing === undefined
+	) {
 		return <Loader />;
 	}
 
@@ -57,24 +58,24 @@ const profile = () => {
 		<View style={styles.container}>
 			{/* TOP BAR */}
 			<View style={styles.header}>
-				{/* USERNAME */}
-				<View style={styles.headerLeft}>
-					<Text style={styles.username}>{currentUser?.username}</Text>
-				</View>
-
-				{/* SIGNOUT BUTTON */}
-				<TouchableOpacity
-					style={styles.headerIcon}
+				{/* BACK BUTTON */}
+				<Pressable
 					onPress={() => {
-						signOut();
+						handleBack();
 					}}
 				>
 					<Ionicons
-						name="log-out-outline"
+						name="arrow-back"
 						size={24}
 						color={COLORS.white}
 					/>
-				</TouchableOpacity>
+				</Pressable>
+
+				{/* USERNAME */}
+				<Text style={styles.headerTitle}>{profile?.username}</Text>
+
+				{/* SOME SPACE TO THE RIGHT */}
+				<View style={{ width: 24 }} />
 			</View>
 
 			{/* SCROLL VIEW */}
@@ -86,7 +87,7 @@ const profile = () => {
 						{/* PRO-PIC */}
 						<View style={styles.avatarContainer}>
 							<Image
-								source={currentUser?.image}
+								source={profile?.image}
 								style={styles.avatar}
 								contentFit="cover"
 								cachePolicy="memory-disk"
@@ -97,19 +98,19 @@ const profile = () => {
 						<View style={styles.statsContainer}>
 							<View style={styles.statItem}>
 								<Text style={styles.statNumber}>
-									{currentUser?.posts}
+									{profile?.posts}
 								</Text>
 								<Text style={styles.statLabel}>Posts</Text>
 							</View>
 							<View style={styles.statItem}>
 								<Text style={styles.statNumber}>
-									{currentUser?.followers}
+									{profile?.followers}
 								</Text>
 								<Text style={styles.statLabel}>Followers</Text>
 							</View>
 							<View style={styles.statItem}>
 								<Text style={styles.statNumber}>
-									{currentUser?.following}
+									{profile?.following}
 								</Text>
 								<Text style={styles.statLabel}>Following</Text>
 							</View>
@@ -117,25 +118,45 @@ const profile = () => {
 					</View>
 
 					{/* USERNAME */}
-					<Text style={styles.name}>{currentUser?.fullname}</Text>
+					<Text style={styles.name}>{profile?.fullname}</Text>
 
 					{/* BIO */}
-					{currentUser?.bio && (
-						<Text style={styles.bio}>{currentUser.bio}</Text>
+					{profile?.bio && (
+						<Text style={styles.bio}>{profile.bio}</Text>
 					)}
 
-					{/* EDIT-PROFILE BUTTON */}
-					<TouchableOpacity
-						style={[styles.editButton, { marginTop: 8 }]}
-						onPress={() => setIsEditModalVisible(true)}
+					{/* FOLLOW/UNFOLLOW BUTTON */}
+					<Pressable
+						style={[
+							styles.followButton,
+							isFollowing && styles.followingButton,
+						]}
+						onPress={() => {
+							toggleFollow({ followingId: id });
+						}}
 					>
-						<Text style={styles.editButtonText}>Edit Profile</Text>
-					</TouchableOpacity>
+						<Text
+							style={[
+								styles.followButtonText,
+								isFollowing && styles.followingButtonText,
+							]}
+						>
+							{isFollowing ? "Following" : "Follow"}
+						</Text>
+					</Pressable>
 				</View>
 
 				{/* ALL POSTS */}
-				{posts?.length === 0 ? (
-					<NoPostsFound />
+				{/* <View style={styles.postsGrid}> */}
+				{posts.length === 0 ? (
+					<View style={styles.noPostsContainer}>
+						<Ionicons
+							name="images-outline"
+							size={48}
+							color={COLORS.grey}
+						/>
+						<Text style={styles.noPostsText}>No posts yet</Text>
+					</View>
 				) : (
 					<FlatList
 						data={posts}
@@ -148,7 +169,9 @@ const profile = () => {
 						renderItem={({ item, index, separators }) => (
 							<TouchableOpacity
 								style={styles.gridItem}
-								onPress={() => setSelectedPost(item)}
+								onPress={() => {
+									setSelectedPost(item);
+								}}
 							>
 								<Image
 									source={item.imageUrl}
@@ -160,95 +183,8 @@ const profile = () => {
 						)}
 					/>
 				)}
+				{/* </View> */}
 			</ScrollView>
-
-			{/* EDIT-PROFILE MODAL */}
-			<Modal
-				visible={isEditModalVisible}
-				animationType="slide"
-				transparent={true}
-				onRequestClose={() => {
-					setIsEditModalVisible(false);
-				}}
-			>
-				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-					<KeyboardAvoidingView
-						behavior={Platform.OS === "ios" ? "padding" : "height"}
-						style={styles.modalContainer}
-					>
-						<View style={styles.modalContent}>
-							{/* MODAL TOP-BAR */}
-							<View style={styles.modalHeader}>
-								{/* MODAL TITLE */}
-								<Text style={styles.modalTitle}>
-									Edit Profile
-								</Text>
-
-								{/* CLOSE ICON */}
-								<Pressable
-									onPress={() => setIsEditModalVisible(false)}
-								>
-									<Ionicons
-										name="close"
-										size={24}
-										color={COLORS.white}
-									/>
-								</Pressable>
-							</View>
-
-							{/* NAME INPUT */}
-							<View style={styles.inputContainer}>
-								<Text style={styles.inputLabel}>Name</Text>
-								<TextInput
-									style={styles.input}
-									placeholderTextColor={COLORS.grey}
-									value={editedProfile.fullname}
-									onChangeText={(text) => {
-										setEditedProfile((prev) => {
-											return {
-												...prev,
-												fullname: text,
-											};
-										});
-									}}
-								/>
-							</View>
-
-							{/* BIO INPUT */}
-							<View style={styles.inputContainer}>
-								<Text style={styles.inputLabel}>Bio</Text>
-								<TextInput
-									style={[styles.input, styles.bioInput]}
-									value={editedProfile.bio}
-									onChangeText={(text) =>
-										setEditedProfile((prev) => {
-											return {
-												...prev,
-												bio: text,
-											};
-										})
-									}
-									multiline
-									numberOfLines={4}
-									placeholderTextColor={COLORS.grey}
-								/>
-							</View>
-
-							{/* SAVE BUTTON */}
-							<Pressable
-								onPress={() => {
-									handleSaveProfile();
-								}}
-								style={styles.saveButton}
-							>
-								<Text style={styles.saveButtonText}>
-									Save Changes
-								</Text>
-							</Pressable>
-						</View>
-					</KeyboardAvoidingView>
-				</TouchableWithoutFeedback>
-			</Modal>
 
 			{/* SELECTED IMAGE MODAL */}
 			<Modal
@@ -287,29 +223,9 @@ const profile = () => {
 			</Modal>
 		</View>
 	);
-};
-
-// NoPostsFound screen
-const NoPostsFound = () => {
-	return (
-		<View
-			style={{
-				height: "100%",
-				backgroundColor: COLORS.background,
-				justifyContent: "center",
-				alignItems: "center",
-			}}
-		>
-			<Ionicons name="images-outline" size={48} color={COLORS.primary} />
-			<Text style={{ fontSize: 20, color: COLORS.white }}>
-				No posts yet
-			</Text>
-		</View>
-	);
-};
+}
 
 const { width, height } = Dimensions.get("window");
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
@@ -546,5 +462,3 @@ const styles = StyleSheet.create({
 		color: COLORS.white,
 	},
 });
-
-export default profile;

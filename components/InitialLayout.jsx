@@ -6,10 +6,6 @@ export default function InitialLayout() {
 	const { isLoaded, isSignedIn } = useAuth();
 
 	const segments = useSegments();
-	// nicher log gula initial render eo log hoy.
-	// abar porer render eo log hoy. Keno seta bujhlam na.
-	// but overall login/signup process bujhchi.
-	// console.log("segments from initialLayout: ", segments);
 
 	const router = useRouter();
 
@@ -17,7 +13,6 @@ export default function InitialLayout() {
 		if (!isLoaded) {
 			return;
 		}
-		// console.log("initialLayout theke bolchi");
 
 		const currentlyinAuthScreen = segments[0] === "(auth)";
 
